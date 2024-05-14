@@ -1,51 +1,56 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 public class Player : MonoBehaviour
 {
     
     // Start is called before the first frame update
     float newX;
-    float newY;
+    float newZ;
     float time;
-    float playerX, playerY;
-    float speed = 5.0f;
+    float playerX, playerZ;
+    float speed = 25.0f;
     Vector3 targetVector = new Vector3(0.0f, 1.0f, 0.0f);
+    Vector3 angles;
     void Start()
     {
         playerX = 0f;
-        playerY = 0f;
-        transform.position = new Vector3(playerX, 1.0f, playerY);
+        playerZ = 0f;
+        transform.position = new Vector3(playerX, 1.0f, playerZ);
         Debug.Log("X: " + newX);
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*
-        time = time + 1f * Time.deltaTime;
-        if(time >= 5)
-        {
-            time = 0f;
-            movePlayer();
-        }
-        */
-        //movePlayer();
-        
+    }
+
+    void FixedUpdate()
+    {
+        angles = transform.eulerAngles;
+        transform.eulerAngles = new Vector3(angles.x, 90.0f, angles.z);
         transform.position = Vector3.MoveTowards(transform.position, targetVector, speed * Time.deltaTime);
+        if(Input.GetKey(KeyCode.Space))
+        {
+            Debug.Log("Stopped");
+            speed = 0;
+        }
         if(targetVector == transform.position)
         {
             newX = Random.Range(-19.5f, 19.5f);
-            newY = Random.Range(-19.5f, 19.5f);
-            targetVector = new Vector3(newX, 1.0f, newY);
+            newZ = Random.Range(-19.5f, 19.5f);
+            targetVector = new Vector3(newX, 1.0f, newZ);
         }
     }
-    /*
+    
     void movePlayer()
     {
-        
-        while(newX != playerX && newY != playerY)
+        newX = Random.Range(-19.5f, 19.5f);
+        newZ = Random.Range(-19.5f, 19.5f);
+        int i = 0;
+        while(i < 100)
         {
             if(newX < playerX)
             {
@@ -55,17 +60,55 @@ public class Player : MonoBehaviour
             {
                 playerX += 0.1f;
             }
-            if(newY < playerY)
+            if(newZ < playerZ)
             {
-                playerY -= 0.1f;
+                playerZ -= 0.1f;
             }
-            else if(newY > playerY)
+            else if(newZ > playerZ)
             {
-                playerY += 0.1f;
+                playerZ += 0.1f;
             }
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(playerX, 1.0f, playerY), speed * Time.deltaTime);
+            targetVector = new Vector3(playerX, 1.0f, playerZ);
+            //transform.position = targetVector;
+            transform.position = Vector3.MoveTowards(transform.position, targetVector, speed * Time.deltaTime);
+            Thread.Sleep((int)(Time.deltaTime));
+            i += 1;
+            if(targetVector == transform.position)
+            {
+                Debug.Log("Reached");
+            }
         }
-        //transform.position = new Vector3(newX, 1.0f, newY);
+        //transform.position = new Vector3(newX, 1.0f, newZ);
     }
-    */
+
+    IEnumerator delay()
+    {
+        /*
+        time = time + Time.deltaTime;
+        int timer = 0;
+        while(timer < 100)
+        {
+            Debug.Log(timer);
+            if(time > 5f)
+            {
+                Debug.Log("BROKEN");
+                time = 0.0f;
+                break;
+            }
+            timer += 1;
+        }
+        */
+        yield return new WaitForSeconds(10);
+    }
+    
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log(collision.gameObject.name);
+        if(collision.gameObject.name == "Wall")
+        {
+            newX = Random.Range(-19.5f, 19.5f);
+            newZ = Random.Range(-19.5f, 19.5f);
+            targetVector = new Vector3(newX, 1.0f, newZ);
+        }
+    }
 }
