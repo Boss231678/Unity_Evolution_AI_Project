@@ -5,13 +5,16 @@ using System.Threading;
 
 public class Player : MonoBehaviour
 {
-    
+    public GameObject player; 
+    public Character character;
+    private FieldOfView fov;
     // Start is called before the first frame update
     float newX;
     float newZ;
+    float prevX, prevZ;
     float time;
     float playerX, playerZ;
-    float speed = 25.0f;
+    public float speed = 25.0f;
     Vector3 targetVector = new Vector3(0.0f, 1.0f, 0.0f);
     Vector3 angles;
     void Start()
@@ -20,6 +23,7 @@ public class Player : MonoBehaviour
         playerZ = 0f;
         transform.position = new Vector3(playerX, 1.0f, playerZ);
         Debug.Log("X: " + newX);
+        fov = player.GetComponent<FieldOfView>();
     }
 
     // Update is called once per frame
@@ -32,57 +36,26 @@ public class Player : MonoBehaviour
         angles = transform.eulerAngles;
         transform.eulerAngles = new Vector3(angles.x, 90.0f, angles.z);
         transform.position = Vector3.MoveTowards(transform.position, targetVector, speed * Time.deltaTime);
+        
         if(targetVector == transform.position)
         {
+            prevX = newX;
+            prevZ = newZ;
             newX = Random.Range(-19.5f, 19.5f);
             newZ = Random.Range(-19.5f, 19.5f);
             targetVector = new Vector3(newX, 1.0f, newZ);
         }
     }
     
-    void movePlayer()
-    {
-        newX = Random.Range(-19.5f, 19.5f);
-        newZ = Random.Range(-19.5f, 19.5f);
-        int i = 0;
-        while(i < 100)
-        {
-            if(newX < playerX)
-            {
-                playerX -= 0.1f;
-            }
-            else if(newX > playerX)
-            {
-                playerX += 0.1f;
-            }
-            if(newZ < playerZ)
-            {
-                playerZ -= 0.1f;
-            }
-            else if(newZ > playerZ)
-            {
-                playerZ += 0.1f;
-            }
-            targetVector = new Vector3(playerX, 1.0f, playerZ);
-            //transform.position = targetVector;
-            transform.position = Vector3.MoveTowards(transform.position, targetVector, speed * Time.deltaTime);
-            Thread.Sleep((int)(Time.deltaTime));
-            i += 1;
-            if(targetVector == transform.position)
-            {
-                Debug.Log("Reached");
-            }
-        }
-        //transform.position = new Vector3(newX, 1.0f, newZ);
-    }
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log(collision.gameObject.name);
         if(collision.gameObject.name == "Wall")
         {
-            newX = Random.Range(-19.5f, 19.5f);
-            newZ = Random.Range(-19.5f, 19.5f);
+            newX = prevX;
+            newZ = prevZ;
             targetVector = new Vector3(newX, 1.0f, newZ);
         }
     }
+    
 }
