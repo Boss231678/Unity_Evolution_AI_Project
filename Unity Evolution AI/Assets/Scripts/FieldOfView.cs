@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {   
-    public Player player;
     public float radius;
     public float angle;
     public LayerMask targetMask;
     public LayerMask obstacleMask;
-    public List<Transform> visibleTargets = new List<Transform>();
+    public List<Transform> visibleTargets = new List<Transform>(); 
     public int numOfTargets;
     public bool isTargetFound = false;
 
@@ -60,6 +59,7 @@ public class FieldOfView : MonoBehaviour
         {
             yield return new WaitForSeconds(delay);
             FindVisibleTargets();
+            /*
             if(visibleTargets.Count > 0)
             {
                 for(int i = 0; i < visibleTargets.Count; i++)
@@ -69,25 +69,14 @@ public class FieldOfView : MonoBehaviour
                     {
                         if(visibleTargets[i].ToString() == "Sphere (" + j + ") (UnityEngine.Transform)")
                         {
-                            Debug.Log("Sphere (" + j + ") in sight!");
-                            Debug.Log(visibleTargets[i].position.x + " " + visibleTargets[i].position.y + " " + visibleTargets[i].position.z);
+                            //Debug.Log("Sphere (" + j + ") in sight!");
+                            //Debug.Log(visibleTargets[i].position.x + " " + visibleTargets[i].position.y + " " + visibleTargets[i].position.z);
                             isTargetFound = true;
-                            goToTarget(visibleTargets[i].position.x, visibleTargets[i].position.y, visibleTargets[i].position.z);
                         }
                     }
                 }
             }
+            */
         }
-    }
-
-    public void goToTarget(float target_x, float target_y, float target_z)
-    {
-        Vector3 targetVector = new Vector3(target_x, target_y, target_z);
-        transform.position = Vector3.MoveTowards(transform.position, targetVector, 5 * Time.deltaTime);
-    }
-
-    public bool foundTarget(bool state)
-    {
-        return state;
     }
 }
