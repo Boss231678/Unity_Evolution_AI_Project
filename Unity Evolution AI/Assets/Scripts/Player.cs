@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     float randX, randZ;
     List<Vector3> futureStates = new List<Vector3>();
     List<int> foodsAtPoint = new List<int>();
+    List<List<Transform>> foodPositions = new List<List<Transform>>();
+    List<List<float>> distances = new List<List<float>>();
     int iteratorA;
     float prevX, prevZ;
     float time;
@@ -20,6 +22,7 @@ public class Player : MonoBehaviour
     public float speed = 5.0f;
     Vector3 targetVector = new Vector3(0.0f, 1.0f, 0.0f);
     Vector3 playerPos;
+    Vector3 startPosition;
     public int foodsEaten = 0;
     Vector3 angles; //vector3 is like std::pair
     int count;
@@ -32,6 +35,7 @@ public class Player : MonoBehaviour
         prevX = 0f;
         prevZ = 0f;
         playerPos = new Vector3(playerX, 1.0f, playerZ);
+        startPosition = playerPos;
         transform.position = playerPos; //setting position
     }
 
@@ -61,9 +65,19 @@ public class Player : MonoBehaviour
             {
                 for(int i = 0; i < futureStates.Count; i++)
                 {
+
                     Debug.Log(futureStates[i] + " " + foodsAtPoint[i]);
+                    List<float> d = new List<float>();
+                    for(int j = 0; j < foodPositions[i].Count; j++)
+                    {
+                        d.Add(Vector3.Distance(foodPositions[i][j].position, futureStates[i]));
+                        //Debug.Log("X: " + foodPositions[i][j].position.x + " " + Vector3.Distance(foodPositions[i][j].position, futureStates[i]));
+                    }
+                    distances.Add(d);
                 }
                 Debug.Log("----");
+
+
             }
         }
         else
@@ -104,11 +118,6 @@ public class Player : MonoBehaviour
         }        
     }
 
-    private float reward(Vector3 currentState, Vector3 futureState)
-    {
-        return 0.0f;
-    }
-
     void getNewRandoms()
     {
         prevX = newX;
@@ -126,9 +135,14 @@ public class Player : MonoBehaviour
             getNewRand = true;
             futureStates.Add(end);
             foodsAtPoint.Add(fov.visibleTargets.Count);
+            foodPositions.Add(fov.visibleTargets);
             Debug.Log(futureStates.Count);
-            transform.position = new Vector3(0f, 1f, 0f);
+            transform.position = startPosition;
         }
     }
-    
+
+    private float reward(Vector3 currentState, Vector3 futureState)
+    {
+        return 0.0f;
+    }
 }
