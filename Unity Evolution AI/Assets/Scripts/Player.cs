@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     float newX, newZ;
     float randX, randZ;
     List<Vector3> futureStates = new List<Vector3>();
-    List<int> foodsAtPoint;
+    List<int> foodsAtPoint = new List<int>();
     int iteratorA;
     float prevX, prevZ;
     float time;
@@ -44,50 +44,26 @@ public class Player : MonoBehaviour
     {
         if(fov.visibleTargets.Count > 0)
         {
-            Debug.Log(futureStates.Count);
-            while(futureStates.Count < 10)
+            if(futureStates.Count != 10)
             {
-                Debug.Log("B");
-                if(collidedWithObstacle)
-                {
-                    collidedWithObstacle = false;
-                    transform.position = new Vector3(prevX, 1.0f, prevZ);
-                    iteratorA += 1;
-                    getNewRand = true;
-                }
-
                 if(getNewRand == true)
                 {
-                    prevX = newX;
-                    prevZ = newZ;
-                    newX = Random.Range(-19.5f, 19.5f);
-                    newZ = Random.Range(-19.5f, 19.5f);
-                    targetVector = new Vector3(newX, 1.0f, newZ);
+                    playerX = transform.position.x;
+                    playerZ = transform.position.z;
+                    playerPos = new Vector3(playerX, 1.0f, playerZ);
+                    getNewRandoms();
                     getNewRand = false;
                 }
-                playerX = transform.position.x;
-                playerZ = transform.position.z;
-                playerPos = new Vector3(playerX, 1.0f, playerZ);
-                transform.position = Vector3.MoveTowards(playerPos, targetVector, speed * Time.deltaTime);
-                //Debug.Log(transform.position.x);
-                if(targetVector == playerPos)
-                {
-                    Debug.Log("C");
-                    futureStates.Add(playerPos);
-                    foodsAtPoint.Add(fov.visibleTargets.Count);
+                goToPointAndBack(playerPos, targetVector);
+            }
 
-                    transform.position = new Vector3(0f, 1.0f, 0f);
-                    
-                    getNewRand = true;
-                }
-
-                if(collidedWithObstacle)
+            if(futureStates.Count == 10)
+            {
+                for(int i = 0; i < futureStates.Count; i++)
                 {
-                    collidedWithObstacle = false;
-                    transform.position = new Vector3(prevX, 1.0f, prevZ);
-                    iteratorA += 1;
+                    Debug.Log(futureStates[i] + " " + foodsAtPoint[i]);
                 }
-                reward(playerPos, futureStates[iteratorA]);
+                Debug.Log("----");
             }
         }
         else
@@ -99,7 +75,7 @@ public class Player : MonoBehaviour
     
     private void OnCollisionEnter(Collision collision) //GameObject colliding with another GameObject
     {
-        Debug.Log(collision.gameObject.tag);
+        //Debug.Log(collision.gameObject.tag);
         if(collision.gameObject.tag == "Food")
         {
             Destroy(collision.gameObject);
@@ -107,7 +83,7 @@ public class Player : MonoBehaviour
         }
         if(collision.gameObject.name == "Wall")
         {
-            Debug.Log("Collided");
+            //Debug.Log("Collided");
             collidedWithObstacle = true;
             newX = prevX;
             newZ = prevZ;
@@ -124,17 +100,35 @@ public class Player : MonoBehaviour
             
         if(targetVector == transform.position) //target reached
         {
-            prevX = newX;
-            prevZ = newZ;
-            newX = Random.Range(-19.5f, 19.5f);
-            newZ = Random.Range(-19.5f, 19.5f);
-            targetVector = new Vector3(newX, 1.0f, newZ);
+            getNewRandoms();
         }        
     }
 
     private float reward(Vector3 currentState, Vector3 futureState)
     {
         return 0.0f;
+    }
+
+    void getNewRandoms()
+    {
+        prevX = newX;
+        prevZ = newZ;
+        newX = Random.Range(-19.5f, 19.5f);
+        newZ = Random.Range(-19.5f, 19.5f);
+        targetVector = new Vector3(newX, 1.0f, newZ);
+    }
+
+    void goToPointAndBack(Vector3 start, Vector3 end)
+    {
+        transform.position = Vector3.MoveTowards(transform.position, end, speed * Time.deltaTime);
+        if(end == transform.position)
+        {
+            getNewRand = true;
+            futureStates.Add(end);
+            foodsAtPoint.Add(fov.visibleTargets.Count);
+            Debug.Log(futureStates.Count);
+            transform.position = new Vector3(0f, 1f, 0f);
+        }
     }
     
 }
