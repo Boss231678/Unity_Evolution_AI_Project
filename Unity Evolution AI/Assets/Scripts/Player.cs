@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     List<int> foodsAtPoint = new List<int>();
     List<List<Transform>> foodPositions = new List<List<Transform>>();
     List<List<float>> distances = new List<List<float>>();
+    List<float> futureStateReward = new List<float>();
+    int foodsTouched = 0;
     int iteratorA;
     float prevX, prevZ;
     float time;
@@ -28,6 +30,8 @@ public class Player : MonoBehaviour
     int count;
     bool collidedWithObstacle = false;
     bool getNewRand = true;
+    bool getDistances = true;
+    bool testRun = true;
     void Start()
     {
         playerX = 0f;
@@ -46,7 +50,7 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(fov.visibleTargets.Count > 0)
+        if(fov.visibleTargets.Count == 0 || fov.visibleTargets.Count > 0)
         {
             if(futureStates.Count != 10)
             {
@@ -60,24 +64,45 @@ public class Player : MonoBehaviour
                 }
                 goToPointAndBack(playerPos, targetVector);
             }
-
+            
             if(futureStates.Count == 10)
             {
+                testRun = false;
+                /*
+                if(getDistances == true)
+                {
+                    for (int i = 0; i < futureStates.Count; i++)
+                    {
+                        Debug.Log(futureStates[i] + " " + foodsAtPoint[i]);
+                        List<float> d = new List<float>();
+                        if (foodsAtPoint[i] > 0)
+                        {
+                            Debug.Log("A");
+                            for (int j = 0; j < foodsAtPoint[i]; j++)
+                            {
+                                Debug.Log("C" + futureStates[i] );
+                                d.Add(Vector3.Distance(foodPositions[i][j].position, futureStates[i]));
+                                Debug.Log("X: " + foodPositions[i][j].position.x + " " + d[j]);
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("B");
+                            d.Add(999999999.9f);
+                        }
+                        distances.Add(d);
+                        Debug.Log(distances[i].Count);
+                        d.Clear();
+                    }
+                    Debug.Log("----");
+                    getDistances = false;
+                }
+
                 for(int i = 0; i < futureStates.Count; i++)
                 {
-
-                    Debug.Log(futureStates[i] + " " + foodsAtPoint[i]);
-                    List<float> d = new List<float>();
-                    for(int j = 0; j < foodPositions[i].Count; j++)
-                    {
-                        d.Add(Vector3.Distance(foodPositions[i][j].position, futureStates[i]));
-                        //Debug.Log("X: " + foodPositions[i][j].position.x + " " + Vector3.Distance(foodPositions[i][j].position, futureStates[i]));
-                    }
-                    distances.Add(d);
+                    futureStateReward.Add(reward(futureStates[i], foodsAtPoint[i]));
                 }
-                Debug.Log("----");
-
-
+                */
             }
         }
         else
@@ -89,11 +114,18 @@ public class Player : MonoBehaviour
     
     private void OnCollisionEnter(Collision collision) //GameObject colliding with another GameObject
     {
-        //Debug.Log(collision.gameObject.tag);
+        Debug.Log(collision.gameObject.tag);
         if(collision.gameObject.tag == "Food")
         {
-            Destroy(collision.gameObject);
-            foodsEaten += 1;
+            if(testRun == true)
+            {
+                foodsTouched += 1;
+            }
+            else
+            {
+                Destroy(collision.gameObject);
+                foodsEaten += 1;
+            }
         }
         if(collision.gameObject.name == "Wall")
         {
@@ -136,13 +168,16 @@ public class Player : MonoBehaviour
             futureStates.Add(end);
             foodsAtPoint.Add(fov.visibleTargets.Count);
             foodPositions.Add(fov.visibleTargets);
-            Debug.Log(futureStates.Count);
+            futureStateReward.Add(reward(end, fov.visibleTargets.Count, foodsTouched, fov.visibleTargets));
+            //Debug.Log(futureStates.Count + " " + foodsTouched);
             transform.position = startPosition;
+            foodsTouched = 0;
         }
     }
 
-    private float reward(Vector3 currentState, Vector3 futureState)
+    private float reward(Vector3 testPos, int targetsVisible, int foodsAte, List<Transform> foodPositions)
     {
+
         return 0.0f;
     }
 }
