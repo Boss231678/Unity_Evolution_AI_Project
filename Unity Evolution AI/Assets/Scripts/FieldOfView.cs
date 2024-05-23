@@ -79,4 +79,8 @@ public class FieldOfView : MonoBehaviour
             */
         }
     }
+
+    public void test() {
+        Debug.Log("this is test function from FOV");
+    }
 }

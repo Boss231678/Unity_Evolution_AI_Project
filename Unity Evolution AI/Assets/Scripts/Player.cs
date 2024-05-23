@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
+using System.Globalization;
 
 public class Player : MonoBehaviour
 {
@@ -41,11 +42,18 @@ public class Player : MonoBehaviour
         playerPos = new Vector3(playerX, 1.0f, playerZ);
         startPosition = playerPos;
         transform.position = playerPos; //setting position
+        fov = FindObjectOfType<FieldOfView>(); 
+        classtest();
     }
 
     // Update is called once per frame
     void Update()
     {
+        // fov = FindObjectOfType<FieldOfView>(); 
+        // basically FieldOfView changes as player moves
+        // might want to update this elsewhere prob computational intensive
+        // could also update right before using fov in player, should essentially be a copy of FieldOfView at that time
+        // FindObjectOfType<T>() is a method used to find an instance of a particular type (T) of object in the scene.
     }
 
     void FixedUpdate()
@@ -114,7 +122,7 @@ public class Player : MonoBehaviour
     
     private void OnCollisionEnter(Collision collision) //GameObject colliding with another GameObject
     {
-        Debug.Log(collision.gameObject.tag);
+//        Debug.Log(collision.gameObject.tag);
         if(collision.gameObject.tag == "Food")
         {
             if(testRun == true)
@@ -179,5 +187,10 @@ public class Player : MonoBehaviour
     {
 
         return 0.0f;
+    }
+
+    public void classtest() {
+        fov.test();
+        Debug.Log("this is a class test. We just called FOV function from player.");
     }
 }
