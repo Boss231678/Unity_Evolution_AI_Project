@@ -1,82 +1,71 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Threading;
 
 public class Character : MonoBehaviour {
-    public string type;  //cop or robber
-
-    public float health = 100f;
-
-    public void reduceHealth(float damage) {
-        // damage passed in is always 100
-        health -= damage;
-        Debug.Log(type + " got hurt ");
-    } 
-
-    // public void {
+    public string _charBaseType;  //cop or robber, eventually should start changing things but guessing unity won't allow you to modify vars in scripts while running, need gamemanager/main
+    public float _health = 100f;
     
-    // }
-    
-    
-}
-public class Robber : Character {
-    private string robberType; 
-    // later down, maybe use type of robbers, ie shoplifter vs bank robber for now default
-    // typical type is default
-    // multiplier amongst robbers, can be increased through ML
-    private float cooperation = 1f;
-    //no honor amongst thieves
-    private float competiveness = 1f;
-    
-    void Start() {
-
+    // Constructor
+    public Character(string characterType) {
+        _charBaseType = characterType;
     }
+    private void AssignTypeClass() {
+        if (_charBaseType == "Robber") {
+            gameObject.AddComponent<Robber>(); 
+            //attach robber to gameObject or capsule, then Start() in Robber class is run
+        }
+        else if (_charBaseType == "Cop") {
+            gameObject.AddComponent<Cop>();
+        }
+    }
+    void Start() {
+        // _charBaseType = "Robber"; //making everyone robber for now
+        AssignTypeClass();
+    }
+
     void Update() {
 
     }
-    void FixedUpdate() {
-        TakeDamage(100f);
-    }
-
-    //class constructor
-    public Robber(string robberType, float cooperation, float competiveness) {
-        this.robberType = robberType;
-        this.cooperation = cooperation;
-        this.competiveness = competiveness;
-    }
-
-    public string nameType {
-        get { return type; }
-        set { type = value; }
-    }
-    public float nameCooperation {
-        get { return cooperation; }
-        set { cooperation = value; } // robber2.nameCooperation = value;
-    }
-
-    public float nameCompetitveness {
-        get { return competiveness; }
-        set { competiveness = value; }
-    }
-
-    // public void goToFood {
-        
-    // }
-    public void TakeDamage(float damage) {
-        damage = 100f; //instant death
-        Debug.Log("TEST A");
-        reduceHealth(100f); 
-        Debug.Log("TEST B");
-    }
 }
 
-public class Cop : Character {
-    private string copType; // same use as robber 
+public class Robber : Character { // robber specific functions/attributes
+    private string _robberType = "default"; // same purpose as _copType
+    private float _cooperation = 1f;
+    private float _competitiveness = 1f;
 
-    // public bool catchRobber {
-    //     if (true)
-        
-    // }
+    // Class constructor
+    public Robber(string robberType, float cooperation, float competitiveness) : base("Robber") {
+        _robberType = robberType;
+        _cooperation = cooperation;
+        _competitiveness = competitiveness;
+    }
+
+    public string RobberType {
+        get { return _robberType; }
+        set { _robberType = value; }
+    }
+
+    public float Cooperation {
+        get { return _cooperation; }
+        set { _cooperation = value; }
+    }
+
+    public float Competitiveness {
+        get { return _competitiveness; }
+        set { _competitiveness = value; }
+    }
+
+}
+
+
+public class Cop : Character { // cop specific functions/attributes
+    private string _copType = "default"; // later use perhaps (sheriff, deputy..)
+
+    public Cop(string copType) : base("Cop") { 
+        _copType = copType;
+    }
+
+    public string copType {
+        get { return _copType; }
+        set { _copType = value; }
+    }
 }

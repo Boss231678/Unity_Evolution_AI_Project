@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
+using Unity.VisualScripting;
 
 public class Player : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class Player : MonoBehaviour
     bool getNewRand = true;
     bool getDistances = true;
     bool testRun = true;
+    bool cubePassthrough = true; //switch, true - pass through
     void Start()
     {
         playerX = 0f;
@@ -115,7 +117,8 @@ public class Player : MonoBehaviour
     private void OnCollisionEnter(Collision collision) //GameObject colliding with another GameObject
     {
         Debug.Log(collision.gameObject.tag);
-        if(collision.gameObject.tag == "Food")
+        Collider playerCollider = GetComponent<Collider>();
+        if(collision.gameObject.CompareTag("Food"))
         {
             if(testRun == true)
             {
@@ -127,13 +130,43 @@ public class Player : MonoBehaviour
                 foodsEaten += 1;
             }
         }
-        if(collision.gameObject.name == "Wall")
+        else if(collision.gameObject.CompareTag("Wall"))
         {
-            //Debug.Log("Collided");
-            collidedWithObstacle = true;
-            newX = prevX;
-            newZ = prevZ;
-            targetVector = new Vector3(newX, 1.0f, newZ);
+            Debug.Log("Collided");
+            // if (!cubePassthrough) {
+                collidedWithObstacle = true;
+                newX = prevX;
+                newZ = prevZ;
+                targetVector = new Vector3(newX, 1.0f, newZ);
+            // }
+            // else {
+            //     StartCoroutine(TemporarilyDisableCollider());
+            // }
+        }
+        if ( cubePassthrough || collision.gameObject.CompareTag("GhostWall")) { 
+            Debug.Log("BOO!!!");
+            StartCoroutine(TemporarilyDisableCollider());
+        }
+    }
+    
+    // void OnTriggerEnter(Collider other)
+    // {
+    //     if (other.CompareTag("GhostWall"))
+    //     {
+    //         Debug.Log("I am ghost! BOO!!!");
+    //     }
+    // }
+   
+    private IEnumerator TemporarilyDisableCollider()
+    {
+        Collider playerCollider = GetComponent<Collider>();
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (playerCollider != null)
+        {
+            playerCollider.enabled = false;
+            rb.constraints |= RigidbodyConstraints.FreezePositionY;
+            yield return new WaitForSeconds(5f); //kinda of a workaround can't find better for now
+            playerCollider.enabled = true;
         }
     }
 
